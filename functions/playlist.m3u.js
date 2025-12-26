@@ -2,10 +2,9 @@ export async function onRequest() {
   const SOURCE =
     "https://cdn-toffee-playlist.pages.dev/ott_navigator.m3u";
 
-  // 🔗 Fetch with Origin header
+  // 🔗 Normal fetch (no Origin header)
   const res = await fetch(SOURCE, {
     headers: {
-      "Origin": "https://bd71.vercel.app",
       "User-Agent": "Mozilla/5.0",
     },
   });
@@ -18,7 +17,7 @@ export async function onRequest() {
   for (let line of lines) {
     line = line.trim();
 
-    // ❌ Only remove these
+    // ❌ Only remove these two
     if (
       line.startsWith("#EXTVLCOPT:http-user-agent") ||
       line.startsWith("#EXTHTTP:")
@@ -32,7 +31,7 @@ export async function onRequest() {
 
   return new Response(output.join("\n"), {
     headers: {
-      // 👇 Browser will SHOW text, not open player
+      // Browser-এ text দেখাবে, player auto-open হবে না
       "Content-Type": "text/plain; charset=utf-8",
       "Content-Disposition": 'inline; filename="playlist.m3u"',
       "Cache-Control": "no-store",
