@@ -7,30 +7,27 @@ export async function onRequest() {
 
   const lines = text.split("\n");
 
-  let output = ["#EXTM3U"];
-  let lastExtinf = null;
+  let output = [];
 
   for (let line of lines) {
     line = line.trim();
 
-    if (line.startsWith("#EXTINF")) {
-      const name = line.match(/tvg-name="([^"]*)"/)?.[1] || "";
-      const logo = line.match(/tvg-logo="([^"]*)"/)?.[1] || "";
-      const title = line.split(",").pop();
-
-      lastExtinf =
-        `#EXTINF:-1 tvg-name="${name}" tvg-logo="${logo}",${title}`;
-    } 
-    else if (lastExtinf && line.endsWith(".m3u8")) {
-      output.push(lastExtinf);
-      output.push(line);
-      lastExtinf = null;
+    // ❌ Remove only these two
+    if (
+      line.startsWith("#EXTVLCOPT:http-user-agent") ||
+      line.startsWith("#EXTHTTP:")
+    ) {
+      continue;
     }
+
+    // ✅ Keep everything else
+    output.push(line);
   }
 
   return new Response(output.join("\n"), {
     headers: {
-      "Content-Type": "application/x-mpegURL",
+      "Content-Type": "application/x-mpegURL; charset=utf-8",
+      "Content-Disposition": 'inline; filename="playlist.m3u"',
       "Cache-Control": "no-store",
     },
   });
