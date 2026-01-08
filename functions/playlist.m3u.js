@@ -1,13 +1,22 @@
 export async function onRequest({ request }) {
   const ua = request.headers.get("user-agent") || "";
 
-  // ✅ Allowed native apps only
-  const isAllowedApp =
-    /Android|Windows|OTT|IPTV|VLC|ExoPlayer/i.test(ua);
+  // ❌ Block all browsers
+  const isBrowser =
+    /Chrome|Firefox|Safari|Edg|OPR|MSIE/i.test(ua);
 
-  // ❌ Browser or unknown access
-  if (!isAllowedApp) {
-    return Response.redirect("https://t.me/allonebd", 302);
+  // ✅ Allow only IPTV / Media players
+  const isIPTV =
+    /IPTV|VLC|OTT|ExoPlayer|TiviMate|PerfectPlayer|Kodi/i.test(ua);
+
+  // 🚫 Browser access blocked
+  if (isBrowser || !isIPTV) {
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: "https://t.me/allonebd",
+      },
+    });
   }
 
   const SOURCE =
@@ -23,13 +32,10 @@ export async function onRequest({ request }) {
 
   return new Response(text, {
     headers: {
-      // ✅ CORS only for allowed apps
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
-
       "Content-Type": "text/plain; charset=utf-8",
       "Content-Disposition": 'inline; filename="playlist.m3u"',
       "Cache-Control": "no-store",
+      "Access-Control-Allow-Origin": "*",
     },
   });
 }
