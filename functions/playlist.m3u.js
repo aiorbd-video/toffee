@@ -20,7 +20,7 @@ export async function onRequest({ request }) {
   }
 
   const SOURCE =
-    "https://cdn-toffee-playlist.pages.dev/ott_navigator.m3u";
+    "https://cdn-toffee-playlist.pages.dev/ott_navigator.mreoveu";
 
   const res = await fetch(SOURCE, {
     headers: {
