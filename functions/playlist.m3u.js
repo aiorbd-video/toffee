@@ -1,40 +1,39 @@
-export async function onRequest({ request }) {
-  const ua = request.headers.get("user-agent") || "";
+export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+    const ua = request.headers.get("user-agent") || "";
 
-  // Browser block
-  const isBrowser =
-    /Chrome|Firefox|Safari|Edg|OPR|Opera|MSIE|Trident/i.test(ua);
+    // শুধু /playlist.m3u allow
+    if (url.pathname !== "/playlist.m3u") {
+      return new Response("", {
+        status: 404,
+        headers: {
+          "Content-Type": "text/plain",
+        },
+      });
+    }
 
-  if (isBrowser) {
-    return Response.redirect("https://t.me/allonebd", 302);
-  }
+    // browser detect
+    const isBrowser =
+      /Mozilla|Chrome|Firefox|Safari|Edge|OPR|Trident/i.test(ua);
 
-  const SOURCE =
-    "https://cdn-toffee-playlist.pages.dev/ott_navigator.m3u";
+    if (isBrowser) {
+      return Response.redirect("https://t.me/allonebd", 302);
+    }
 
-  const res = await fetch(SOURCE, {
-    headers: {
-      "User-Agent": ua,
-    },
-  });
+    const res = await fetch(
+      "https://cdn-toffee-playlist.pages.dev/ott_navigator.m3u"
+    );
 
-  return new Response(await res.text(), {
-    headers: {
-      "Content-Type": "application/x-mpegURL; charset=utf-8",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "*",
-      "Access-Control-Allow-Headers": "*",
-      "Cache-Control": "no-store",
-    },
-  });
-}
+    const text = await res.text();
 
-export async function onRequestOptions() {
-  return new Response(null, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "*",
-      "Access-Control-Allow-Headers": "*",
-    },
-  });
-}
+    return new Response(text, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/x-mpegURL",
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "no-store",
+      },
+    });
+  },
+};
