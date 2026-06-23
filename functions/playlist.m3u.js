@@ -3,7 +3,7 @@ export async function onRequest({ request }) {
 
   // ❌ Block all browsers
   const isBrowser =
-    /Chrome|Firefox|Safari|Edg|OPR|MSIE/i.test(ua);
+    /Edg|OPR|MSIE/i.test(ua);
 
   // ✅ Allow only IPTV / Media players
   const isIPTV =
