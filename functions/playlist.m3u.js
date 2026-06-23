@@ -16,7 +16,7 @@ export async function onRequest({ request }) {
   }
 
   // ৩. যদি ব্রাউজার না হয় (অর্থাৎ আইপিটিভি প্লেয়ার), তবে ফাইলটি সার্ভ করুন
-  const SOURCE = "https://cdn-toffee-playlist.pages.dev/ott_navigator.m3u";
+  const SOURCE = "https://raw.githubusercontent.com/BINOD-XD/Toffee-Auto-Update-Playlist/refs/heads/main/toffee_OTT_Navigator.m3u";
   
   const res = await fetch(SOURCE);
   const text = await res.text();
