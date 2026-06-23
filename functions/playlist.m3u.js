@@ -1,22 +1,12 @@
 export async function onRequest({ request }) {
   const ua = request.headers.get("user-agent") || "";
 
-  // ❌ Block all browsers
+  // Browser block
   const isBrowser =
-    /Edg|OPR|MSIE/i.test(ua);
+    /Chrome|Firefox|Safari|Edg|OPR|Opera|MSIE|Trident/i.test(ua);
 
-  // ✅ Allow only IPTV / Media players
-  const isIPTV =
-    /IPTV|VLC|OTT|ExoPlayer|TiviMate|PerfectPlayer|Kodi/i.test(ua);
-
-  // 🚫 Browser access blocked
-  if (isBrowser || !isIPTV) {
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: "https://t.me/allonebd",
-      },
-    });
+  if (isBrowser) {
+    return Response.redirect("https://t.me/allonebd", 302);
   }
 
   const SOURCE =
@@ -28,14 +18,23 @@ export async function onRequest({ request }) {
     },
   });
 
-  const text = await res.text();
-
-  return new Response(text, {
+  return new Response(await res.text(), {
     headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Content-Disposition": 'inline; filename="playlist.m3u"',
-      "Cache-Control": "no-store",
+      "Content-Type": "application/x-mpegURL; charset=utf-8",
       "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Headers": "*",
+      "Cache-Control": "no-store",
+    },
+  });
+}
+
+export async function onRequestOptions() {
+  return new Response(null, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Headers": "*",
     },
   });
 }
