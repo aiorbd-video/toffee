@@ -1,39 +1,22 @@
-export default {
-  async fetch(request) {
-    const url = new URL(request.url);
-    const ua = request.headers.get("user-agent") || "";
+export async function onRequest({ request }) {
+  // The source URL for the M3U playlist
+  const SOURCE = "https://cdn-toffee-playlist.pages.dev/ott_navigator.m3u";
 
-    // শুধু /playlist.m3u allow
-    if (url.pathname !== "/playlist.m3u") {
-      return new Response("", {
-        status: 404,
-        headers: {
-          "Content-Type": "text/plain",
-        },
-      });
-    }
+  // Fetch the playlist from the source
+  const res = await fetch(SOURCE);
 
-    // browser detect
-    const isBrowser =
-      /Mozilla|Chrome|Firefox|Safari|Edge|OPR|Trident/i.test(ua);
+  // Get the content
+  const text = await res.text();
 
-    if (isBrowser) {
-      return Response.redirect("https://t.me/allonebd", 302);
-    }
-
-    const res = await fetch(
-      "https://cdn-toffee-playlist.pages.dev/ott_navigator.m3u"
-    );
-
-    const text = await res.text();
-
-    return new Response(text, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/x-mpegURL",
-        "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "no-store",
-      },
-    });
-  },
-};
+  // Return the response with wide-open CORS headers
+  return new Response(text, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Content-Disposition": 'inline; filename="playlist.m3u"',
+      "Cache-Control": "no-store",
+      "Access-Control-Allow-Origin": "*", // Allows any origin to access this resource
+      "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS", // Explicitly allow GET/OPTIONS
+      "Access-Control-Allow-Headers": "*", // Allows all headers
+    },
+  });
+}
